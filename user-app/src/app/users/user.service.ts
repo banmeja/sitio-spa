@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 
@@ -6,39 +7,39 @@ import { BehaviorSubject, Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class UserService {
+  private apiUrl = 'http://localhost:3000'; // Reemplaza con la URL de tu API
 
-  constructor() { }
+  constructor(private http: HttpClient) { }
 
-  private users = new BehaviorSubject<any[]>([
-    { id: 1, name: 'ojolon', email: 'ojolon@ojolon.com'}
-    
-  ]);
+  //login
+  login(username: string, password: string): Observable<any> {    
+    const body = {username, password}
+    return this.http.post<any>(`${this.apiUrl}/login`, body);
+  }
 
+  //obtiene todos los usuarios
   getUsers(): Observable<any[]> {
-    return this.users.asObservable();
+    return this.http.get<any[]>(this.apiUrl);
   }
 
-  addUser(user: any) {
-    const currentUsers = this.users.getValue();
-    this.users.next([...currentUsers, user]);
-  }
-  updateUser(id: number, updatedUser: any) {
-    const currentUsers = this.users.getValue();
-    const userIndex = currentUsers.findIndex(user => user.id === id);
-    if (userIndex !== -1) {
-      currentUsers[userIndex] = { ...currentUsers[userIndex], ...updatedUser };
-      this.users.next([...currentUsers]);
-    }
+  //obtiene un usuario por id
+  getUserById(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
 
-  deleteUser(id: number) {
-    const currentUsers = this.users.getValue();
-    const updatedUsers = currentUsers.filter(user => user.id !== id);
-    this.users.next(updatedUsers);
+  //agrega un nuevo usuario
+  addUser(user: any): Observable<any> {
+    return this.http.post<any>(this.apiUrl, user);
   }
 
-  getUserById(id: number): any {
-    const currentUsers = this.users.getValue();
-    return currentUsers.find(user => user.id === id); 
+  //actualiza un usuario existente
+  updateUser(id: number, user: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${id}`, user);
   }
+
+  //elimina un usuario
+  deleteUser(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/${id}`);
+  }
+
 }
