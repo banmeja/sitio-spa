@@ -34,7 +34,7 @@ export class UserService {
   deleteUser(id: number) {
     const currentUsers = this.users.getValue();
     const updatedUsers = currentUsers.filter(user => user.id !== id);
-    return of(true);
+    this.users.next(updatedUsers);
   }
 
   getUserById(id: number): any {
